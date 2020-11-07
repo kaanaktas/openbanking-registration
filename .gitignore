@@ -1,0 +1,38 @@
+/target/
+*.iml
+.idea/
+.settings/
+.classpath
+.project
+target/
+bin/
+report/
+jmeter.log
+
+
+
+.vscode/
+
+target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
