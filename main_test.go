@@ -31,6 +31,7 @@ var claims = map[string]interface{}{
 func Test_createRegisterPayload(t *testing.T) {
 	type args struct {
 		ssa string
+		register Register
 	}
 	tests := []struct {
 		name string
@@ -45,7 +46,7 @@ func Test_createRegisterPayload(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := createRegisterPayload(tt.args.ssa); !reflect.DeepEqual(got["ssa"], tt.want["ssa"]) {
+			if got := createRegisterPayload(tt.args.ssa, tt.args.register); !reflect.DeepEqual(got["ssa"], tt.want["ssa"]) {
 				t.Errorf("createRegisterPayload() = %v, want %v", got, tt.want)
 			}
 		})
