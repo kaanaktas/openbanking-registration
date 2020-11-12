@@ -9,9 +9,8 @@ bin/
 report/
 jmeter.log
 
-
-
 .vscode/
+.env
 
 target/
 
@@ -28,6 +27,7 @@ target/
 *.iws
 *.iml
 *.ipr
+tmp/
 
 ### NetBeans ###
 nbproject/private/
