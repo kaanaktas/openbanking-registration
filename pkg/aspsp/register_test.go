@@ -1,10 +1,8 @@
-package main
+package aspsp
 
 import (
-	"encoding/json"
-	"github.com/dgrijalva/jwt-go"
+	"github.com/kaanaktas/openbanking-registration/internal/config"
 	"reflect"
-	"strings"
 	"testing"
 )
 
@@ -30,8 +28,8 @@ var claims = map[string]interface{}{
 
 func Test_createRegisterPayload(t *testing.T) {
 	type args struct {
-		ssa string
-		register Register
+		ssa      string
+		register *config.Register
 	}
 	tests := []struct {
 		name string
@@ -48,61 +46,6 @@ func Test_createRegisterPayload(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := createRegisterPayload(tt.args.ssa, tt.args.register); !reflect.DeepEqual(got["ssa"], tt.want["ssa"]) {
 				t.Errorf("createRegisterPayload() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_generateJwt(t *testing.T) {
-	type args struct {
-		claims jwt.MapClaims
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
-	}{
-		{
-			"compare_with_token", args{claims}, validToken, false,
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := generateJwt(tt.args.claims)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("generateJwt() error = %v\n, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("generateJwt() got = %v\n,want = %v", got, tt.want)
-			}
-		})
-	}
-}
-
-func Test_callService(t *testing.T) {
-	postBody, _ := json.Marshal(map[string]string{
-		"name":  "test",
-		"email": "test@test.com",
-	})
-
-	type args struct {
-		endpoint string
-		payload  []byte
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{"http_valid_post", args{"https://sandbox-obp-api.danskebank.com/sandbox-open-banking/v1.0/thirdparty/register", postBody}, "{"},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got, err := callService(tt.args.endpoint, tt.args.payload); !strings.Contains(got, tt.want) {
-				t.Error(err)
-				t.Errorf("callService() = %v, want %v", got, tt.want)
 			}
 		})
 	}
