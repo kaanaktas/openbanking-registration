@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"crypto/rsa"
 	"crypto/tls"
 	"crypto/x509"
 	"github.com/dgrijalva/jwt-go"
@@ -20,7 +21,7 @@ const (
 	MIMEApplicationJWT       = "application/jwt"
 	ClientKeyPEM             = "certs/ob-transport/zDcwMHjgbPP3ETGEO4tCV9.key"
 	ClientCertPEM            = "certs/ob-transport/BZ5TXmhW1hC6NhqFVB5lURIWzsk.pem"
-	ServerCACertPEM          = "certs/ob-transport/ob_root_ca.cer"
+	ServerCACertPEM          = "certs/ob-transport/ob_issuer.cer"
 	OpenBankingSigningKeyPEM = "certs/ob-transport/signing.key"
 )
 
@@ -37,7 +38,7 @@ type Register struct {
 	ApplicationType          string   `yaml:"applicationType"`
 	Iss                      string   `yaml:"iss"`
 	TokenEndpointAuthMethod  string   `yaml:"tokenEndpointAuthMethod"`
-	TlsClientAuthDn          string   `yaml:"tlsClientAuthDn"`
+	TlsClientAuthSubjectDn   string   `yaml:"tlsClientAuthSubjectDn"`
 	SoftwareId               string   `yaml:"softwareId"`
 	Aud                      string   `yaml:"aud"`
 	Scope                    string   `yaml:"scope"`
@@ -84,6 +85,7 @@ func doRegister(c echo.Context) error {
 	aspspId := c.Param("aspsp")
 	register, err := readAspspConfiguration(aspspId)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -91,11 +93,13 @@ func doRegister(c echo.Context) error {
 	claims := createRegisterPayload(ssa, register)
 	signedPayload, err := generateJwt(claims)
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	resp, err := callService(register.Endpoint, []byte(signedPayload))
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
@@ -109,7 +113,7 @@ func createRegisterPayload(ssa string, register Register) map[string]interface{}
 		"application_type":             register.ApplicationType,
 		"iss":                          register.Iss,
 		"token_endpoint_auth_method":   register.TokenEndpointAuthMethod,
-		"tls_client_auth_dn":           register.TlsClientAuthDn,
+		"tls_client_auth_subject_dn":   register.TlsClientAuthSubjectDn,
 		"software_id":                  register.SoftwareId,
 		"software_statement":           ssa,
 		"aud":                          register.Aud,
@@ -125,7 +129,11 @@ func createRegisterPayload(ssa string, register Register) map[string]interface{}
 }
 
 func generateJwt(claims jwt.MapClaims) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
+	//Below fixes the wrong signature problem for PS-*.
+	//this is the follow up issue -> https://github.com/dgrijalva/jwt-go/pull/305
+	signingMethodPS256 := jwt.SigningMethodPS256
+	signingMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
+	token := jwt.NewWithClaims(signingMethodPS256, claims)
 	token.Header = headers
 
 	keyData, _ := ioutil.ReadFile(OpenBankingSigningKeyPEM)
