@@ -9,25 +9,20 @@ bin/
 report/
 jmeter.log
 
-
-
 .vscode/
-
-target/
+.env
 
 ### STS ###
 .apt_generated
-.classpath
 .factorypath
-.project
 .settings
 .springBeans
 
 ### IntelliJ IDEA ###
 .idea
 *.iws
-*.iml
 *.ipr
+tmp/
 
 ### NetBeans ###
 nbproject/private/
