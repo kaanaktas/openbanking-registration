@@ -10,7 +10,7 @@ register:
   applicationType: web
   iss: zDcwMHjgbPP3ETGEO4tCV9
   tokenEndpointAuthMethod: tls_client_auth
-  tlsClientAuthDn: CN=zDcwMHjgbPP3ETGEO4tCV9, OU=0014H00001lFE4pQAG, O=OpenBanking, C=GB
+  tlsClientAuthSubjectDn: CN=zDcwMHjgbPP3ETGEO4tCV9, OU=0014H00001lFE4pQAG, O=OpenBanking, C=GB
   softwareId: zDcwMHjgbPP3ETGEO4tCV9
   aud: https://obp-api.danskebank.com/open-banking/private
   scope: openid accounts payments

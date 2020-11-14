@@ -16,8 +16,8 @@ var headers = map[string]interface{}{
 func GenerateJwt(claims jwt.MapClaims) (string, error) {
 	signingKey := os.Getenv("OB_SIGN_KEY")
 
-	//Below fixes the wrong signature problem for PS-*.
-	//this is the follow up issue -> https://github.com/dgrijalva/jwt-go/pull/305
+	//line 20-21 fix the wrong signature problem for PS-*.
+	//follow up issue: https://github.com/dgrijalva/jwt-go/pull/305
 	signingMethodPS256 := jwt.SigningMethodPS256
 	signingMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
