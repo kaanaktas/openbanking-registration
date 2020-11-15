@@ -2,12 +2,13 @@ package client
 
 import (
 	"github.com/dgrijalva/jwt-go"
+	"io/ioutil"
+	"log"
+	"os"
 	"testing"
 )
 
 func TestGenerateJwt(t *testing.T) {
-
-	const validToken = "eyJhbGciOiJIUzI1NiIsImtpZCI6IktJRCIsInR5cCI6IkpXVCJ9.eyJhcHBsaWNhdGlvbl90eXBlIjoid2ViIiwiYXVkIjoiaHR0cHM6Ly9vYnAtYXBpLmRhbnNrZWJhbmsuY29tL29wZW4tYmFua2luZy9wcml2YXRlIiwiZXhwIjoxNTgyNzI1MTUzLCJncmFudF90eXBlcyI6WyJhdXRob3JpemF0aW9uX2NvZGUiLCJyZWZyZXNoX3Rva2VuIiwiY2xpZW50X2NyZWRlbnRpYWxzIl0sImlhdCI6MTU4MjcxNzE1MywiaWRfdG9rZW5fc2lnbmVkX3Jlc3BvbnNlX2FsZyI6IlBTMjU2IiwiaXNzIjoiQWRZQkplZHJzbUFKUnpTOFNzUWcydiIsImp0aSI6IjQwZWMwOGE5LTg2NDUtNGU0YS1hZTkwLTIxYzQ3M2EyYTBiOCIsInJlZGlyZWN0X3VyaXMiOlsiaHR0cHM6Ly9vcGVuYmFua2luZy5za3lwbGFpbnNvZnQuY29tL2NhbGxiYWNrIiwiaHR0cHM6Ly9sb2NhbGhvc3Q6ODA4MC9jYWxsYmFjayJdLCJyZXF1ZXN0X29iamVjdF9zaWduaW5nX2FsZyI6IlBTMjU2Iiwic2NvcGUiOiJvcGVuaWQgYWNjb3VudHMgcGF5bWVudHMiLCJzb2Z0d2FyZV9pZCI6IkFkWUJKZWRyc21BSlJ6UzhTc1FnMnYiLCJzb2Z0d2FyZV9zdGF0ZW1lbnQiOiJ0ZXN0X3NzYSIsInRsc19jbGllbnRfYXV0aF9kbiI6IkNOPUFkWUJKZWRyc21BSlJ6UzhTc1FnMnYsIE9VPTAwMTRIMDAwMDFsRkU0cFFBRywgTz1PcGVuQmFua2luZywgQz1HQiIsInRva2VuX2VuZHBvaW50X2F1dGhfbWV0aG9kIjoidGxzX2NsaWVudF9hdXRoIn0.saQDpBIx_IE6oOrGE6gdQJrePOIZa6ESOOvZDZl8Xok"
 
 	var claims = map[string]interface{}{
 		"grant_types":                  []string{"authorization_code", "refresh_token", "client_credentials"},
@@ -27,6 +28,9 @@ func TestGenerateJwt(t *testing.T) {
 		"exp":                          1582725153,
 	}
 
+	_ = os.Setenv("OB_SIGN_KEY", "./testdata/test_key.pem")
+	_ = os.Setenv("KID", "kid_test")
+
 	type args struct {
 		claims jwt.MapClaims
 	}
@@ -37,17 +41,31 @@ func TestGenerateJwt(t *testing.T) {
 		wantErr bool
 	}{
 		{
-			"compare_with_token", args{claims}, validToken, false,
+			"validate_token", args{claims}, "Token is expired", false,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := GenerateJwt(tt.args.claims)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("generateJwt() error = %v\n, wantErr %v", err, tt.wantErr)
+			got, vError := GenerateJwt(tt.args.claims)
+			if (vError != nil) != tt.wantErr {
+				t.Errorf("generateJwt() error = %v\n, wantErr %v", vError, tt.wantErr)
 				return
 			}
-			if got != tt.want {
+
+			token, vError := jwt.Parse(got, func(t *jwt.Token) (interface{}, error) {
+				certData, _ := ioutil.ReadFile("./testdata/test_cert.pem")
+				cert, err := jwt.ParseRSAPublicKeyFromPEM(certData)
+				if err != nil {
+					log.Fatalln("couldn't retrieve the pem file.", err)
+				}
+				return cert, err
+			})
+
+			if token != nil && token.Header["kid"] != "kid_test" {
+				log.Fatalln("kid value doesn't match.")
+			}
+
+			if vError != nil && vError.Error() != tt.want {
 				t.Errorf("generateJwt() got = %v\n,want = %v", got, tt.want)
 			}
 		})

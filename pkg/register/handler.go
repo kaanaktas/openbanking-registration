@@ -1,6 +1,7 @@
-package aspsp
+package register
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 	"github.com/kaanaktas/openbanking-registration/internal/client"
 	"github.com/kaanaktas/openbanking-registration/internal/config"
@@ -15,14 +16,21 @@ func Register(c echo.Context) error {
 
 	register, err := config.LoadConfig(aspspId)
 	if err != nil {
-		return err
+		return fmt.Errorf("error while loading aspsp config from config.LoadConfig(). %w", err)
 	}
 
 	ssa := c.QueryParam("ssa")
-	claims := createRegisterPayload(ssa, register)
+	if ssa == ""{
+		return c.JSON(http.StatusBadRequest, map[string]interface{}{
+			"status":       false,
+			"errorMessage": "ssa shouldn't be empty",
+		})
+	}
+	claims := createRegisterPayload(uuid.New().String(), createLongTime(0), createLongTime(60), ssa, register)
 	signedPayload, err := client.GenerateJwt(claims)
 	if err != nil {
 		log.Printf("error while generating jwt, %v", err)
+
 		return c.JSON(http.StatusBadRequest, map[string]interface{}{
 			"status":       false,
 			"errorMessage": err.Error(),
@@ -50,7 +58,7 @@ func Register(c echo.Context) error {
 	return c.JSON(http.StatusOK, resp)
 }
 
-func createRegisterPayload(ssa string, register *config.Register) map[string]interface{} {
+func createRegisterPayload(jti string, iat, exp int64, ssa string, register *config.Register) map[string]interface{} {
 	claims := map[string]interface{}{
 		"grant_types":                  register.GrantTypes,
 		"redirect_uris":                register.RedirectUris,
@@ -62,11 +70,11 @@ func createRegisterPayload(ssa string, register *config.Register) map[string]int
 		"software_statement":           ssa,
 		"aud":                          register.Aud,
 		"scope":                        register.Scope,
-		"jti":                          uuid.New(),
+		"jti":                          jti,
 		"id_token_signed_response_alg": register.IdTokenSignedResponseAlg,
 		"request_object_signing_alg":   register.RequestObjectSigningAlg,
-		"iat":                          createLongTime(0),
-		"exp":                          createLongTime(60),
+		"iat":                          iat,
+		"exp":                          exp,
 	}
 
 	return claims

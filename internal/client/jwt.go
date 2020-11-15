@@ -2,32 +2,39 @@ package client
 
 import (
 	"crypto/rsa"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"io/ioutil"
 	"os"
 )
 
-var headers = map[string]interface{}{
-	"typ": "JWT",
-	"alg": "PS256",
-	"kid": "O9JRkzXnFf6AK7H2kq2UI_Gv2I8",
-}
-
 func GenerateJwt(claims jwt.MapClaims) (string, error) {
-	signingKey := os.Getenv("OB_SIGN_KEY")
+	signingAlgorithm := claims["request_object_signing_alg"]
+	var signingMethod jwt.SigningMethod
 
-	//line 20-21 fix the wrong signature problem for PS-*.
-	//follow up issue: https://github.com/dgrijalva/jwt-go/pull/305
-	signingMethodPS256 := jwt.SigningMethodPS256
-	signingMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
-	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
-	token.Header = headers
+	if signingAlgorithm == "PS256" {
+		//below 2 lines fix the wrong signature problem for PS-*.
+		//follow up issue: https://github.com/dgrijalva/jwt-go/pull/305
+		signingMethodPS256 := jwt.SigningMethodPS256
+		signingMethodPS256.Options.SaltLength = rsa.PSSSaltLengthEqualsHash
+		signingMethod = signingMethodPS256
+	} else if signingAlgorithm == "RS256" {
+		signingMethod = jwt.SigningMethodRS256
+	} else {
+		return "", fmt.Errorf("unsupported signing algorithm %v", signingAlgorithm)
+	}
+
+	signingKey := os.Getenv("OB_SIGN_KEY")
+	kid := os.Getenv("KID")
+
+	token := jwt.NewWithClaims(signingMethod, claims)
+	token.Header["kid"] = kid
 
 	keyData, _ := ioutil.ReadFile(signingKey)
 	key, err := jwt.ParseRSAPrivateKeyFromPEM(keyData)
 
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("couldn't parse the private key. %w", err)
 	}
 
 	return token.SignedString(key)

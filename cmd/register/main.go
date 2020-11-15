@@ -3,7 +3,7 @@ package main
 import (
 	"github.com/joho/godotenv"
 	"github.com/kaanaktas/openbanking-registration/internal/client"
-	"github.com/kaanaktas/openbanking-registration/pkg/aspsp"
+	"github.com/kaanaktas/openbanking-registration/pkg/register"
 	"log"
 	"os"
 )
@@ -21,7 +21,7 @@ func main() {
 	e := client.NewEchoEngine()
 
 	// Routes
-	e.GET("/:aspsp/register", aspsp.Register)
+	e.GET("/:aspsp/register", register.Register)
 
 	log.Printf("starting server at :%s", port)
 

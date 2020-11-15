@@ -6,12 +6,10 @@ import (
 	"os"
 )
 
-// this is only for internal, so it can start with lower case
 type config struct {
 	Register Register `yaml:"register"`
 }
 
-// Register an exported config, it starts with Upper case.
 type Register struct {
 	Endpoint                 string   `yaml:"endpoint"`
 	GrantTypes               []string `yaml:"grantTypes"`
@@ -30,7 +28,6 @@ type Register struct {
 var cache = map[string]Register{}
 
 func LoadConfig(aspspId string) (*Register, error) {
-	// naive way to use cache ( in-memory )
 	if item, ok := cache[aspspId]; ok {
 		return &item, nil
 	}
@@ -42,13 +39,6 @@ func LoadConfig(aspspId string) (*Register, error) {
 	defer f.Close()
 
 	var aspsp config
-	/*
-		Short form
-		decoder := yaml.NewDecoder(f)
-		err = decoder.Decode(&aspsp)
-		if err!=nil { {
-	*/
-
 	if err := yaml.NewDecoder(f).Decode(&aspsp); err != nil {
 		return nil, fmt.Errorf("error yaml decode, %w", err)
 	}

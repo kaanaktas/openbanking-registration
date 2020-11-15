@@ -14,8 +14,6 @@ type SecureClient struct {
 	*http.Client
 }
 
-const MIMEApplicationJWT = "application/jwt"
-
 var client *SecureClient
 
 func NewSecureHttpClient() (*SecureClient, error) {
@@ -54,6 +52,8 @@ func NewSecureHttpClient() (*SecureClient, error) {
 
 	return client, nil
 }
+
+const MIMEApplicationJWT = "application/jwt"
 
 func (s *SecureClient) CallService(endpoint string, payload []byte) (string, error) {
 	responseBody := bytes.NewBuffer(payload)
