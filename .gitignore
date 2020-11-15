@@ -7,7 +7,7 @@
 target/
 bin/
 report/
-jmeter.log
+runner.conf
 
 .vscode/
 .env
