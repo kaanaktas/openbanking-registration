@@ -1,3 +1,6 @@
+
+![openbanking-register-ci](https://github.com/kaanaktas/openbanking-registration/workflows/openbanking-register-ci/badge.svg)
+
 Introduction
 ------------
 
