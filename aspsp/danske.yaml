@@ -1,0 +1,18 @@
+register:
+  name: danske
+  endpoint: https://sandbox-obp-api.danskebank.com/sandbox-open-banking/v1.0/thirdparty/register
+  grantTypes:
+    - authorization_code
+    - client_credentials
+  redirectUris:
+    - <CLIENT_REDIRECT_URL_1>
+    - <CLIENT_REDIRECT_URL_2>
+  applicationType: web
+  iss: <CLIENT_SOFTWARE_ID>
+  tokenEndpointAuthMethod: tls_client_auth
+  tlsClientAuthSubjectDn: <CLIENT_SUBJECT_DN>
+  softwareId: <CLIENT_SOFTWARE_ID>
+  aud: https://obp-api.danskebank.com/open-banking/private
+  scope: openid accounts payments
+  idTokenSignedResponseAlg: PS256
+  requestObjectSigningAlg: PS256

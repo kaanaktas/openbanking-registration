@@ -1,0 +1,18 @@
+register:
+  name: ozone
+  endpoint: https://ob19-rs1.o3bank.co.uk:4501/dynamic-client-registration/v3.1/register
+  grantTypes:
+    - authorization_code
+    - client_credentials
+  redirectUris:
+    - <CLIENT_REDIRECT_URL_1>
+    - <CLIENT_REDIRECT_URL_2>
+  applicationType: web
+  iss: <CLIENT_SOFTWARE_ID>
+  tokenEndpointAuthMethod: tls_client_auth
+  tlsClientAuthSubjectDn: <CLIENT_SUBJECT_DN>
+  softwareId: <CLIENT_SOFTWARE_ID>
+  aud: 0015800001041RHAAY
+  scope: openid accounts payments
+  idTokenSignedResponseAlg: PS256
+  requestObjectSigningAlg: PS256

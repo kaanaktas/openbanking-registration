@@ -1,0 +1,30 @@
+FROM golang:1.15-alpine as builder
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+
+RUN go mod download
+
+COPY . .
+
+# Build the Go app
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/register
+
+FROM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY --from=builder /app/main .
+COPY ./aspsp ./aspsp
+
+# Copy certs folder where you keep your certs and keys(not recommended for prod)
+COPY ./certs ./certs
+# Copy .env file if you keep env vars in a file
+COPY ./.env ./
+
+EXPOSE 8080
+
+CMD ["./main"]
