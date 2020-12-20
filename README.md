@@ -47,8 +47,3 @@ For testing purposes, Ozone Bank and Danske were added and their configuration c
  **`ssa`**: Software Assertion is a JWT based token which is specfici for TPP. It can be retrieved from Open Banking portal. 
  Different aspsp might have different requirements for expiry time such as `not issued more than 10 mins ago`. 
 ### **`Expected Response`**
-
-<!--
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2Fkaanaktas%2Fopenbanking-registration&count_bg=%233D81C8&title_bg=%23C74F4F&icon=&icon_color=%23E7E7E7&title=visitors&edge_flat=false)](https://hits.seeyoufarm.com)
--->
-
