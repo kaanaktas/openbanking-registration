@@ -1,7 +1,5 @@
 FROM alpine:latest
 
-RUN apk --no-cache add ca-certificates
-
 # Copy the binary file
 COPY ./main ./
 # Copy aspsp config folder
