@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM scratch
 
 # Copy the binary file
 COPY ./main ./
