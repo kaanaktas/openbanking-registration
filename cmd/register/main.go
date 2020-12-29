@@ -27,7 +27,6 @@ func main() {
 	log.Printf("starting server at :%s", port)
 
 	if err := e.Start(":" + port); err != nil {
-		log.Printf("error while starting server at :%s, %v", port, err)
-		os.Exit(1)
+		log.Fatalf("error while starting server at :%s, %v", port, err)
 	}
 }
