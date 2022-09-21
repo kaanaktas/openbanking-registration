@@ -1,4 +1,4 @@
-
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 ![openbanking-register-ci](https://github.com/kaanaktas/openbanking-registration/workflows/openbanking-register-ci/badge.svg)
 
 Introduction
